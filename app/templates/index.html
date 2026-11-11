@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub | College Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="site-header">
+    <a href="/" class="brand">CAMPUS<span>HUB</span></a>
+    <nav class="site-nav">
+        <a href="#about">About</a>
+        <a href="#features">Features</a>
+        <a href="{{ url_for('login') }}" class="btn">Login</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-content">
+        <p style="color:#ff6872;font-weight:bold;letter-spacing:2px;">YOUR COLLEGE. ONE PORTAL.</p>
+        <h1>One place for your <span>academic life.</span></h1>
+        <p>
+            Access college notices, attendance, examination results and
+            study materials through one simple and secure platform.
+        </p>
+        <a href="{{ url_for('login') }}" class="btn">Enter CampusHub →</a>
+        <a href="{{ url_for('register') }}" class="btn btn-outline" style="margin-left:8px;">Create Account</a>
+    </div>
+</section>
+
+<section class="section" id="about">
+    <h2>Welcome to CampusHub</h2>
+    <p class="section-intro">
+        A central digital space connecting students, teachers and college administration.
+    </p>
+</section>
+
+<section class="section" id="features">
+    <h2>Everything in one place</h2>
+    <p class="section-intro">Tools designed to make college information easier to access.</p>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>Academic Updates</h3>
+            <p>Stay informed with important college notices and announcements.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Attendance Tracking</h3>
+            <p>View your attendance records and subject-wise progress.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Study Materials</h3>
+            <p>Access and download learning resources shared by your college.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Examination Results</h3>
+            <p>Check your marks and academic performance in one place.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Teacher Portal</h3>
+            <p>Manage attendance and academic activities through a dedicated portal.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Secure Access</h3>
+            <p>Separate access for students, teachers and administrators.</p>
+        </div>
+    </div>
+</section>
+
+<footer style="padding:25px 8%;border-top:1px solid #303030;color:#999;">
+    © 2026 CampusHub. College information portal.
+</footer>
+
+</body>
+</html>

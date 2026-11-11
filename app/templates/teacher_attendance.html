@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CampusHub | Attendance</title>
+<style>
+body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif}
+main{max-width:1100px;margin:auto;padding:30px 20px}
+.panel{background:#1c1c1c;border:1px solid #333;border-radius:10px;padding:24px;margin-top:22px}
+.red{color:#ed303a}.muted{color:#999}
+input,select{background:#111;color:white;border:1px solid #444;padding:11px;border-radius:6px}
+button{background:#d71920;color:white;border:0;padding:12px 20px;border-radius:6px;cursor:pointer}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{text-align:left;padding:14px;border-bottom:1px solid #333}
+th{color:#ed303a}
+.table-wrap{overflow-x:auto}
+a{color:#ff555d;text-decoration:none}
+.actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.message{padding:12px;background:#292929;margin:12px 0}
+@media(max-width:600px){table{min-width:550px}}
+</style>
+</head>
+<body>
+<main>
+    <p class="red">CAMPUSHUB FACULTY</p>
+    <h1>Attendance Management</h1>
+    <a href="{{ url_for('teacher_dashboard') }}">← Teacher Dashboard</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="panel">
+        <h2>Select Class</h2>
+        <form method="GET" class="actions">
+            <select name="subject_id" required>
+                <option value="">Select Subject</option>
+                {% for subject in subjects %}
+                <option value="{{ subject.id }}"
+                    {% if selected_subject|string == subject.id|string %}selected{% endif %}>
+                    {{ subject.subject_name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <input type="date" name="attendance_date"
+                   value="{{ attendance_date }}" required>
+
+            <button type="submit">Load Students</button>
+        </form>
+    </section>
+
+    {% if selected_subject %}
+    <section class="panel">
+        <h2>Student Attendance</h2>
+
+        {% if students %}
+        <form method="POST">
+            <input type="hidden" name="subject_id" value="{{ selected_subject }}">
+            <input type="hidden" name="attendance_date" value="{{ attendance_date }}">
+
+            <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>Attendance Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.full_name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>
+                            <select name="status_{{ student.id }}" required>
+                                <option value="Present"
+                                    {% if student.status == 'Present' %}selected{% endif %}>
+                                    Present
+                                </option>
+                                <option value="Absent"
+                                    {% if student.status == 'Absent' %}selected{% endif %}>
+                                    Absent
+                                </option>
+                                <option value="Late"
+                                    {% if student.status == 'Late' %}selected{% endif %}>
+                                    Late
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+
+            <button type="submit">Save Attendance</button>
+        </form>
+        {% else %}
+            <p class="muted">No registered students found.</p>
+        {% endif %}
+    </section>
+    {% endif %}
+</main>
+</body>
+</html>

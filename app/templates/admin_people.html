@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub | People Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { background:#101010; color:white; font-family:Arial,sans-serif; margin:0; }
+        .container { max-width:1200px; margin:auto; padding:35px 20px; }
+        .header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
+        h1 { margin-bottom:8px; }
+        .muted { color:#999; font-size:14px; }
+        .panel { background:#1c1c1c; border:1px solid #333; border-radius:10px; padding:25px; margin-top:25px; }
+        h2 { font-size:19px; margin-top:0; }
+        .red { color:#ed303a; }
+        input { background:#111; color:white; border:1px solid #444; padding:12px; border-radius:6px; width:100%; }
+        label { display:block; margin:12px 0 7px; font-size:13px; color:#bbb; }
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+        button { background:#d71920; color:white; border:0; padding:12px 20px; border-radius:6px; cursor:pointer; margin-top:18px; }
+        table { width:100%; border-collapse:collapse; margin-top:15px; }
+        th,td { text-align:left; padding:14px 10px; border-bottom:1px solid #333; font-size:13px; }
+        th { color:#ed303a; }
+        .table-wrap { overflow-x:auto; }
+        .message { padding:12px; background:#292929; border-left:3px solid #d71920; margin-top:15px; }
+        .back { color:#ff4b50; text-decoration:none; }
+        @media(max-width:600px) { .form-grid { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <div>
+            <div class="red">CAMPUSHUB ADMINISTRATION</div>
+            <h1>People Management</h1>
+            <div class="muted">Manage students and faculty accounts</div>
+        </div>
+        <a class="back" href="{{ url_for('admin_dashboard') }}">← Admin Dashboard</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="panel">
+        <h2><span class="red">+</span> Create Teacher Account</h2>
+        <form method="POST" action="{{ url_for('create_teacher') }}">
+            <div class="form-grid">
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" name="full_name" required>
+                </div>
+                <div>
+                    <label>Email Address *</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div>
+                    <label>Temporary Password *</label>
+                    <input type="password" name="password" minlength="8" required>
+                </div>
+                <div>
+                    <label>Department</label>
+                    <input type="text" name="department" placeholder="Computer Science">
+                </div>
+                <div>
+                    <label>Qualification</label>
+                    <input type="text" name="qualification" placeholder="MCA, MSc, etc.">
+                </div>
+            </div>
+            <button type="submit">Create Teacher Account</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>Student Directory <span class="red">({{ students|length }})</span></h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Student Name</th><th>Email</th><th>Joined</th></tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.id }}</td>
+                        <td>{{ student.full_name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.created_at.strftime('%d %b %Y') if student.created_at else '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4">No students registered yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Faculty Directory <span class="red">({{ teachers|length }})</span></h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Teacher Name</th><th>Email</th><th>Department</th><th>Qualification</th></tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr>
+                        <td>{{ teacher.id }}</td>
+                        <td>{{ teacher.full_name }}</td>
+                        <td>{{ teacher.email }}</td>
+                        <td>{{ teacher.department or '-' }}</td>
+                        <td>{{ teacher.qualification or '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">No teachers added yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

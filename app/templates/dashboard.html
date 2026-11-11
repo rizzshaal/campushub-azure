@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub | Student Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">CAMPUS<span>HUB</span></div>
+        <div class="sidebar-label">Student menu</div>
+
+        <a href="#overview" class="sidebar-link active" data-section="overview">▦ Overview</a>
+        <a href="#attendance" class="sidebar-link" data-section="attendance">◷ Attendance</a>
+        <a href="#marks" class="sidebar-link" data-section="marks">▤ Marks & Results</a>
+        <a href="#timetable" class="sidebar-link" data-section="timetable">▦ Timetable</a>
+        <a href="#notices" class="sidebar-link" data-section="notices">♢ Notices</a>
+        <a href="#materials" class="sidebar-link" data-section="materials">▣ Study Materials</a>
+        <a href="#teachers" class="sidebar-link" data-section="teachers">♙ Teachers</a>
+        <a href="#profile" class="sidebar-link" data-section="profile">◎ My Profile</a>
+
+        <div class="sidebar-label">Account</div>
+        <a href="{{ url_for('logout') }}" class="sidebar-link logout">↪ Logout</a>
+    </aside>
+
+    <main class="dashboard-main">
+
+        <header class="dashboard-topbar">
+            <div class="topbar-left">
+                <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+                <div>
+                    <h1 id="page-title">Overview</h1>
+                    <p class="muted">Student Portal</p>
+                </div>
+            </div>
+            <div class="user-chip">{{ user_name }}</div>
+        </header>
+
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+        </div>
+
+        <!-- OVERVIEW -->
+        <section class="dashboard-section active" id="overview">
+
+            <div class="welcome-panel">
+                <h2>Welcome back, {{ user_name }}!</h2>
+                <p>Your academic information and college updates are available here.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <small>Overall Attendance</small>
+                    <strong class="stat-accent">
+                        {% if attendance_summary.total > 0 %}
+                            {{ attendance_summary.percentage }}%
+                        {% else %}
+                            --
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat-card">
+                    <small>Present Classes</small>
+                    <strong>{{ attendance_summary.present }}</strong>
+                </div>
+
+                <div class="stat-card">
+                    <small>Study Materials</small>
+                    <strong>{{ materials|length }}</strong>
+                </div>
+
+                <div class="stat-card">
+                    <small>College Notices</small>
+                    <strong>{{ notices|length }}</strong>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>Latest Notices</h3>
+                    <a href="#notices" class="action-link" data-section="notices">View all</a>
+                </div>
+
+                {% for notice in notices[:3] %}
+                    <div class="data-item">
+                        <strong>{{ notice.title }}</strong>
+                        <p>{{ notice.content }}</p>
+                        <small class="muted">
+                            {{ notice.admin_name }} · {{ notice.created_at.strftime('%d %b %Y') }}
+                        </small>
+                    </div>
+                {% else %}
+                    <div class="empty-state">No notices published yet.</div>
+                {% endfor %}
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>Recent Study Materials</h3>
+                    <a href="#materials" class="action-link" data-section="materials">View all</a>
+                </div>
+
+                {% for material in materials[:3] %}
+                    <div class="data-item">
+                        <strong>{{ material.title }}</strong>
+                        <p>{{ material.description or 'Study material' }}</p>
+                        <a class="action-link" href="{{ url_for('download_material', material_id=material.id) }}">Download PDF</a>
+                    </div>
+                {% else %}
+                    <div class="empty-state">No study materials uploaded yet.</div>
+                {% endfor %}
+            </div>
+
+        </section>
+
+        <!-- ATTENDANCE -->
+        <section class="dashboard-section" id="attendance">
+
+            <div class="panel">
+                <h3>Overall Attendance</h3>
+
+                {% if attendance_summary.total > 0 %}
+                    <h2 class="stat-accent">{{ attendance_summary.percentage }}%</h2>
+
+                    <div class="progress-track">
+                        <div class="progress-fill"
+                             data-progress="{{ attendance_summary.percentage }}">
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="empty-state">Attendance has not been recorded yet.</div>
+                {% endif %}
+
+                <div class="stats-grid stats-grid-spaced">
+                    <div class="stat-card">
+                        <small>Total Classes</small>
+                        <strong>{{ attendance_summary.total }}</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <small>Present</small>
+                        <strong>{{ attendance_summary.present }}</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <small>Absent</small>
+                        <strong>{{ attendance_summary.absent }}</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <small>Late</small>
+                        <strong>{{ attendance_summary.late }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Subject-wise Attendance</h3>
+
+                {% for subject in attendance_by_subject %}
+                    <div class="data-item">
+                        <div class="panel-header">
+                            <strong>{{ subject.subject_name }}</strong>
+                            <strong class="stat-accent">{{ subject.percentage }}%</strong>
+                        </div>
+
+                        <div class="progress-track">
+                            <div class="progress-fill"
+                                 data-progress="{{ subject.percentage }}">
+                            </div>
+                        </div>
+
+                        <p>
+                            {{ subject.present }} present ·
+                            {{ subject.absent }} absent ·
+                            {{ subject.total }} classes
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="empty-state">No subject attendance records available.</div>
+                {% endfor %}
+            </div>
+
+        </section>
+
+        <!-- MARKS -->
+        <section class="dashboard-section" id="marks">
+            <div class="panel">
+                <h3>Marks & Results</h3>
+                <div class="empty-state">
+                    Your examination results will appear here after your teachers enter and publish marks.
+                </div>
+            </div>
+        </section>
+
+        <!-- TIMETABLE -->
+        <section class="dashboard-section" id="timetable">
+            <div class="panel">
+                <h3>Class Timetable</h3>
+                <div class="empty-state">
+                    Your class timetable will appear here when it is added by the college administrator.
+                </div>
+            </div>
+        </section>
+
+        <!-- NOTICES -->
+        <section class="dashboard-section" id="notices">
+            <div class="panel">
+                <h3>College Notices</h3>
+
+                <div class="data-list">
+                    {% for notice in notices %}
+                        <div class="data-item">
+                            <h3>{{ notice.title }}</h3>
+                            <p>{{ notice.content }}</p>
+                            <small class="muted">
+                                Published by {{ notice.admin_name }}
+                                · {{ notice.created_at.strftime('%d %b %Y') }}
+                            </small>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">No notices available.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- MATERIALS -->
+        <section class="dashboard-section" id="materials">
+            <div class="panel">
+                <h3>Study Materials</h3>
+
+                <div class="data-list">
+                    {% for material in materials %}
+                        <div class="data-item">
+                            <h3>{{ material.title }}</h3>
+                            <p>{{ material.description or 'Study material' }}</p>
+
+                            <small class="muted">
+                                Uploaded by {{ material.admin_name }}
+                            </small>
+
+                            <p class="download-spacing">
+                                <a class="btn" href="{{ url_for('download_material', material_id=material.id) }}">
+                                    Download PDF
+                                </a>
+                            </p>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">No study materials available.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- TEACHERS -->
+        <section class="dashboard-section" id="teachers">
+            <div class="panel">
+                <h3>Faculty Information</h3>
+                <div class="empty-state">
+                    Teacher information will appear here when faculty details are added.
+                </div>
+            </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section class="dashboard-section" id="profile">
+            <div class="panel">
+                <h3>My Profile</h3>
+
+                <div class="data-item">
+                    <p><strong>Name:</strong> {{ user_name }}</p>
+                    <p><strong>Account type:</strong> Student</p>
+                    <p><strong>Portal:</strong> CampusHub</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    const menuLinks = document.querySelectorAll("[data-section]");
+    const sections = document.querySelectorAll(".dashboard-section");
+    const pageTitle = document.getElementById("page-title");
+
+    // Set attendance progress bar widths
+    document.querySelectorAll(".progress-fill").forEach(bar => {
+        const percentage = Number(bar.dataset.progress) || 0;
+        const safePercentage = Math.min(100, Math.max(0, percentage));
+        bar.style.width = safePercentage + "%";
+    });
+
+    function showSection(sectionName) {
+        sections.forEach(section => {
+            section.classList.toggle("active", section.id === sectionName);
+        });
+
+        menuLinks.forEach(link => {
+            link.classList.toggle("active", link.dataset.section === sectionName);
+        });
+
+        const activeLink = document.querySelector(
+            '.sidebar-link[data-section="' + sectionName + '"]'
+        );
+
+        pageTitle.textContent = activeLink
+            ? activeLink.textContent.trim().replace(/^[^\w]+/, "")
+            : "Overview";
+
+        history.replaceState(null, "", "#" + sectionName);
+
+        document.getElementById("sidebar").classList.remove("open");
+    }
+
+    menuLinks.forEach(link => {
+        link.addEventListener("click", function(event) {
+            event.preventDefault();
+            showSection(this.dataset.section);
+        });
+    });
+
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("open");
+    }
+
+    const initialSection = window.location.hash.replace("#", "");
+    const validSection = document.getElementById(initialSection);
+
+    showSection(validSection ? initialSection : "overview");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub | Administration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">CAMPUS<span>HUB</span></div>
+
+        <div class="sidebar-label">Administration</div>
+
+        <a href="#overview" class="sidebar-link active" data-section="overview">
+            ▦ Dashboard
+        </a>
+
+        <a href="{{ url_for('admin_people') }}" class="sidebar-link">
+            ♙ Students & Teachers
+        </a>
+
+        <a href="{{ url_for('admin_academics') }}" class="sidebar-link">
+            ▤ Courses & Subjects
+        </a>
+
+        <a href="#publish-notice" class="sidebar-link" data-section="publish-notice">
+            ♢ Publish Notice
+        </a>
+
+        <a href="#upload-material" class="sidebar-link" data-section="upload-material">
+            ▣ Upload Materials
+        </a>
+
+        <div class="sidebar-label">Account</div>
+
+        <a href="{{ url_for('logout') }}" class="sidebar-link logout">
+            ↪ Logout
+        </a>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-main">
+
+        <header class="dashboard-topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+
+                <div>
+                    <h1 id="page-title">Dashboard</h1>
+                    <p class="muted">CampusHub management portal</p>
+                </div>
+            </div>
+
+            <div class="user-chip">{{ admin_name }}</div>
+        </header>
+
+        <!-- FLASH MESSAGES -->
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+        </div>
+
+        <!-- DASHBOARD OVERVIEW -->
+        <section class="admin-section active" id="overview">
+
+            <div class="welcome-panel">
+                <h2>Welcome, {{ admin_name }}</h2>
+                <p>
+                    Manage college users, academic information,
+                    notices and learning resources.
+                </p>
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <small>Published Notices</small>
+                    <strong>{{ notices|length }}</strong>
+                </div>
+
+                <div class="stat-card">
+                    <small>User Management</small>
+                    <a class="action-link" href="{{ url_for('admin_people') }}">
+                        Open →
+                    </a>
+                </div>
+
+                <div class="stat-card">
+                    <small>Academic Setup</small>
+                    <a class="action-link" href="{{ url_for('admin_academics') }}">
+                        Open →
+                    </a>
+                </div>
+
+                <div class="stat-card">
+                    <small>Portal Status</small>
+                    <strong class="stat-accent">Active</strong>
+                </div>
+
+            </div>
+
+            <!-- RECENT NOTICES -->
+            <section class="panel">
+                <div class="panel-header">
+                    <h3>Recent Notices</h3>
+                    <span class="muted">{{ notices|length }} notice(s)</span>
+                </div>
+
+                <div class="data-list">
+                    {% for notice in notices %}
+                        <div class="data-item">
+                            <h3>{{ notice.title }}</h3>
+                            <p>{{ notice.content }}</p>
+
+                            <small class="muted">
+                                {{ notice.admin_name }}
+                                · {{ notice.created_at.strftime('%d %b %Y') }}
+                            </small>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            No notices have been published yet.
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+        </section>
+
+        <!-- PUBLISH NOTICE -->
+        <section class="admin-section" id="publish-notice">
+
+            <section class="panel">
+                <h3>Publish College Notice</h3>
+
+                <p class="muted" style="margin-bottom:15px;">
+                    Share an announcement with students.
+                </p>
+
+                <form method="POST" action="{{ url_for('add_notice') }}">
+
+                    <div class="form-group">
+                        <label>Notice title</label>
+                        <input
+                            type="text"
+                            name="title"
+                            placeholder="Enter notice title"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notice details</label>
+                        <textarea
+                            name="content"
+                            rows="5"
+                            placeholder="Write the announcement..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <button class="btn" type="submit">
+                        Publish Notice
+                    </button>
+
+                </form>
+            </section>
+
+        </section>
+
+        <!-- UPLOAD MATERIAL -->
+        <section class="admin-section" id="upload-material">
+
+            <section class="panel">
+                <h3>Upload Study Material</h3>
+
+                <p class="muted" style="margin-bottom:15px;">
+                    Upload a PDF for students to download.
+                </p>
+
+                <form
+                    method="POST"
+                    action="{{ url_for('upload_material') }}"
+                    enctype="multipart/form-data"
+                >
+
+                    <div class="form-group">
+                        <label>Material title</label>
+                        <input
+                            type="text"
+                            name="title"
+                            placeholder="Enter material title"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea
+                            name="description"
+                            rows="3"
+                            placeholder="Short description"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select PDF file</label>
+                        <input
+                            type="file"
+                            name="file"
+                            accept=".pdf,application/pdf"
+                            required
+                        >
+                    </div>
+
+                    <button class="btn" type="submit">
+                        Upload PDF
+                    </button>
+
+                </form>
+            </section>
+
+        </section>
+
+    </main>
+</div>
+
+<!-- SECTION NAVIGATION -->
+<script>
+    const menuLinks = document.querySelectorAll("[data-section]");
+    const sections = document.querySelectorAll(".admin-section");
+    const pageTitle = document.getElementById("page-title");
+
+    function showSection(sectionName) {
+
+        sections.forEach(section => {
+            section.classList.toggle(
+                "active",
+                section.id === sectionName
+            );
+        });
+
+        menuLinks.forEach(link => {
+            link.classList.toggle(
+                "active",
+                link.dataset.section === sectionName
+            );
+        });
+
+        const activeLink = document.querySelector(
+            '.sidebar-link[data-section="' + sectionName + '"]'
+        );
+
+        pageTitle.textContent = activeLink
+            ? activeLink.textContent.trim().replace(/^[^\w]+/, "")
+            : "Dashboard";
+
+        history.replaceState(null, "", "#" + sectionName);
+
+        document.getElementById("sidebar").classList.remove("open");
+    }
+
+    menuLinks.forEach(link => {
+        link.addEventListener("click", function(event) {
+            event.preventDefault();
+            showSection(this.dataset.section);
+        });
+    });
+
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("open");
+    }
+
+    const initialSection = window.location.hash.replace("#", "");
+    const validSection = document.getElementById(initialSection);
+
+    showSection(validSection ? initialSection : "overview");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub | Teacher Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">CAMPUS<span>HUB</span></div>
+        <div class="sidebar-label">Teacher menu</div>
+        <a href="{{ url_for('teacher_dashboard') }}" class="sidebar-link active">▦ Dashboard</a>
+        <a href="{{ url_for('teacher_attendance') }}" class="sidebar-link">◷ Mark Attendance</a>
+        <a href="#subjects" class="sidebar-link">▤ My Subjects</a>
+        <div class="sidebar-label">Account</div>
+        <a href="{{ url_for('logout') }}" class="sidebar-link logout">↪ Logout</a>
+    </aside>
+
+    <main class="dashboard-main">
+        <header class="dashboard-topbar">
+            <div>
+                <h1>Teacher Portal</h1>
+                <p class="muted">Academic workspace</p>
+            </div>
+            <div class="user-chip">{{ user_name }}</div>
+        </header>
+
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+        </div>
+
+        <div class="welcome-panel">
+            <h2>Welcome, {{ user_name }}</h2>
+            <p>Manage your assigned subjects and student attendance.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <small>Assigned Subjects</small>
+                <strong>{{ subjects|length }}</strong>
+            </div>
+            <div class="stat-card">
+                <small>Attendance Management</small>
+                <a class="action-link" href="{{ url_for('teacher_attendance') }}">Open →</a>
+            </div>
+            <div class="stat-card">
+                <small>Marks Management</small>
+                <strong class="stat-accent">Coming next</strong>
+            </div>
+        </div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h3>Academic Tools</h3>
+            </div>
+            <div class="tool-grid">
+                <a class="tool-btn" href="{{ url_for('teacher_attendance') }}">
+                    <strong>Mark Attendance →</strong>
+                    <small>Record present, absent and late status.</small>
+                </a>
+                <div class="tool-btn">
+                    <strong>Marks & Results</strong>
+                    <small>Marks entry will be connected next.</small>
+                </div>
+                <div class="tool-btn">
+                    <strong>Study Materials</strong>
+                    <small>Teacher material upload will be added next.</small>
+                </div>
+                <div class="tool-btn">
+                    <strong>Class Announcements</strong>
+                    <small>Class announcement tools will be added next.</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" id="subjects">
+            <h3>My Assigned Subjects</h3>
+            <div class="data-list" style="margin-top:15px;">
+                {% for subject in subjects %}
+                    <div class="data-item">
+                        <h3>{{ subject.subject_name }}</h3>
+                        <p>{{ subject.course_name or 'Course not specified' }}</p>
+                        <small class="muted">{{ subject.subject_code or 'No subject code' }}</small>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        No subjects assigned yet. Please contact the administrator.
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

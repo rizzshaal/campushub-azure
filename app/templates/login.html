@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CampusHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="auth-page">
+    <section class="auth-info">
+        <a href="/" class="brand">CAMPUS<span>HUB</span></a>
+        <h1>Welcome back to your campus.</h1>
+        <p>Sign in to access your academic updates, learning resources and college portal.</p>
+    </section>
+
+    <section class="auth-panel">
+        <div class="auth-card">
+            <h2>Sign in</h2>
+            <p>Enter your registered account details.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn">Sign in to CampusHub</button>
+            </form>
+
+            <div class="auth-bottom">
+                Don't have an account?
+                <a href="{{ url_for('register') }}">Create one</a>
+                <p style="margin-top:15px;"><a href="{{ url_for('home') }}">← Back to home</a></p>
+            </div>
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

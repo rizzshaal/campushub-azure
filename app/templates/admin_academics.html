@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CampusHub | Academics</title>
+<style>
+body{background:#101010;color:white;font-family:Arial;margin:0}
+main{max-width:1100px;margin:auto;padding:30px 20px}
+.panel{background:#1c1c1c;border:1px solid #333;border-radius:10px;padding:22px;margin:20px 0}
+h1,h2{margin-top:0}.red{color:#ed303a}
+input,select{width:100%;padding:12px;background:#111;color:white;border:1px solid #444;border-radius:6px;margin:8px 0 15px;box-sizing:border-box}
+label{color:#bbb;font-size:13px}
+button{background:#d71920;color:white;border:0;padding:12px 18px;border-radius:6px;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:13px;border-bottom:1px solid #333;font-size:13px}
+th{color:#ed303a}.muted{color:#999}
+a{color:#ff555d;text-decoration:none}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.table-wrap{overflow-x:auto}}
+</style>
+</head>
+<body>
+<main>
+    <p class="red">CAMPUSHUB ADMINISTRATION</p>
+    <h1>Academic Management</h1>
+    <a href="{{ url_for('admin_dashboard') }}">← Admin Dashboard</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p>{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="grid">
+        <section class="panel">
+            <h2>Create Course</h2>
+            <form method="POST">
+                <input type="hidden" name="action" value="course">
+                <label>Course Name</label>
+                <input name="course_name" placeholder="BSc Computer Science" required>
+                <label>Course Code</label>
+                <input name="course_code" placeholder="BSC-CS" required>
+                <button type="submit">Create Course</button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2>Add Subject & Assign Teacher</h2>
+            <form method="POST">
+                <input type="hidden" name="action" value="subject">
+                <label>Subject Name</label>
+                <input name="subject_name" placeholder="Cloud Computing" required>
+                <label>Subject Code</label>
+                <input name="subject_code" placeholder="CC101">
+                <label>Select Course</label>
+                <select name="course_id" required>
+                    <option value="">Choose course</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.course_name }}</option>
+                    {% endfor %}
+                </select>
+                <label>Assign Teacher</label>
+                <select name="teacher_id">
+                    <option value="">Not assigned</option>
+                    {% for teacher in teachers %}
+                    <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Save Subject</button>
+            </form>
+        </section>
+    </div>
+
+    <section class="panel">
+        <h2>Available Courses ({{ courses|length }})</h2>
+        {% for course in courses %}
+        <p>{{ course.course_name }} — {{ course.course_code }}</p>
+        {% else %}
+        <p class="muted">No courses created yet.</p>
+        {% endfor %}
+    </section>
+
+    <section class="panel">
+        <h2>Subject Directory ({{ subjects|length }})</h2>
+        <div class="table-wrap">
+        <table>
+            <tr><th>Subject</th><th>Code</th><th>Course</th><th>Teacher</th></tr>
+            {% for subject in subjects %}
+            <tr>
+                <td>{{ subject.subject_name }}</td>
+                <td>{{ subject.subject_code or '-' }}</td>
+                <td>{{ subject.course_name }}</td>
+                <td>{{ subject.teacher_name or 'Not assigned' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">No subjects added yet.</td></tr>
+            {% endfor %}
+        </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>
