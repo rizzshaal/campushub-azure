@@ -1,9 +1,13 @@
+import os
 import mysql.connector
+
 
 def get_db_connection():
     return mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="153815",
-        database="campushub_db"
+        host=os.environ["rizz-campushub.mysql.database.azure.com"],
+        port=int(os.getenv("3306", "3306")),
+        user=os.environ["rizzshaal"],
+        password=os.environ["rishal@03"],
+        database=os.environ["Azure_campus"],
+        connection_timeout=15,
     )
